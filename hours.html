@@ -9,45 +9,47 @@
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
   :root {
-    --bg: #f2f2f7;
-    --surface: #ffffff;
-    --text: #1c1c1e;
-    --sub: #8e8e93;
-    --border: rgba(60,60,67,0.12);
-    --blue: #007aff;
-    --green: #34c759;
-    --radius: 12px;
+    --bg: #f2f2f7; --surface: #ffffff; --text: #1c1c1e; --sub: #8e8e93;
+    --border: rgba(60,60,67,0.12); --blue: #007aff; --radius: 12px;
     --font: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   }
   body { font-family: var(--font); background: var(--bg); color: var(--text); font-size: 17px; }
   .page { max-width: 430px; margin: 0 auto; padding-bottom: 40px; }
-
   .topbar { padding: 20px 20px 14px; }
   .topbar-date { font-size: 28px; font-weight: 700; letter-spacing: -0.5px; }
   .topbar-day { font-size: 15px; color: var(--sub); margin-top: 2px; }
-
   .card { background: var(--surface); border-radius: var(--radius); margin: 0 16px 12px; overflow: hidden; }
   .field { padding: 13px 16px; border-top: 0.5px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
   .field:first-child { border-top: none; }
   .field label { font-size: 15px; color: var(--sub); min-width: 80px; }
   .field input { border: none; outline: none; font-size: 17px; font-family: var(--font); color: var(--text); background: none; text-align: right; flex: 1; min-width: 0; }
   .field input::placeholder { color: #c7c7cc; }
-
   .save-btn { display: block; margin: 4px 16px 12px; padding: 16px; background: var(--blue); color: #fff; border: none; border-radius: var(--radius); font-size: 17px; font-weight: 600; cursor: pointer; width: calc(100% - 32px); }
   .save-btn:active { opacity: 0.85; }
   .save-btn:disabled { opacity: 0.5; }
-
-  .year-card { margin: 0 16px 14px; background: var(--surface); border-radius: var(--radius); padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; }
+  .countdown-card { margin: 0 16px 12px; background: var(--surface); border-radius: var(--radius); padding: 18px 20px; }
+  .countdown-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px; }
+  .countdown-instalment { font-size: 13px; font-weight: 600; color: var(--sub); text-transform: uppercase; letter-spacing: 0.05em; }
+  .countdown-badge { font-size: 13px; font-weight: 600; padding: 3px 10px; border-radius: 20px; }
+  .badge-active { background: #e8f8ed; color: #1a7a34; }
+  .badge-due { background: #fff3cd; color: #856404; }
+  .countdown-numbers { display: flex; margin-bottom: 14px; }
+  .countdown-stat { flex: 1; }
+  .countdown-stat + .countdown-stat { border-left: 0.5px solid var(--border); padding-left: 16px; }
+  .countdown-num { font-size: 30px; font-weight: 700; letter-spacing: -1px; line-height: 1; }
+  .countdown-lbl { font-size: 12px; color: var(--sub); margin-top: 3px; }
+  .progress-track { height: 8px; background: #e5e5ea; border-radius: 4px; overflow: hidden; }
+  .progress-fill { height: 100%; border-radius: 4px; transition: width 0.6s ease; background: var(--blue); }
+  .progress-fill.complete { background: #34c759; }
+  .countdown-sub { font-size: 13px; color: var(--sub); margin-top: 8px; }
+  .year-card { margin: 0 16px 12px; background: var(--surface); border-radius: var(--radius); padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; }
   .year-label { font-size: 14px; color: var(--sub); margin-bottom: 3px; }
   .year-value { font-size: 32px; font-weight: 700; letter-spacing: -1px; }
   .year-unit { font-size: 16px; font-weight: 400; color: var(--sub); margin-left: 4px; }
   .year-icon { width: 44px; height: 44px; border-radius: 11px; background: #e8f0fe; display: flex; align-items: center; justify-content: center; }
   .year-icon svg { width: 24px; height: 24px; stroke: #1a56db; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-
   .section-label { font-size: 13px; font-weight: 600; color: var(--sub); text-transform: uppercase; letter-spacing: 0.06em; padding: 8px 20px 4px; }
   .today-pill { display: inline-flex; background: #e8f8ed; color: #1a7a34; font-size: 14px; font-weight: 600; padding: 5px 14px; border-radius: 20px; margin: 0 16px 8px; }
-
-  /* Entry rows */
   .entry { border-top: 0.5px solid var(--border); }
   .entry:first-child { border-top: none; }
   .entry-row { padding: 12px 16px; display: flex; align-items: center; gap: 10px; cursor: pointer; }
@@ -57,8 +59,6 @@
   .entry-time { font-size: 13px; color: var(--sub); margin-top: 2px; }
   .entry-hrs { font-size: 17px; font-weight: 600; white-space: nowrap; }
   .entry-chevron { color: var(--sub); font-size: 13px; }
-
-  /* Inline edit form */
   .edit-form { background: #f9f9f9; border-top: 0.5px solid var(--border); padding: 12px 16px; display: none; }
   .edit-form.open { display: block; }
   .edit-row { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 0.5px solid var(--border); }
@@ -68,16 +68,12 @@
   .edit-actions { display: flex; gap: 8px; margin-top: 12px; }
   .btn-update { flex: 1; padding: 11px; background: var(--blue); color: #fff; border: none; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; }
   .btn-cancel { padding: 11px 18px; background: none; border: 0.5px solid var(--border); border-radius: 10px; font-size: 15px; color: var(--sub); cursor: pointer; }
-
-  /* Sheet button */
   .sheet-btn { display: flex; align-items: center; justify-content: center; gap: 8px; margin: 4px 16px 20px; padding: 14px; background: var(--surface); color: #1a7a34; border: 0.5px solid var(--border); border-radius: var(--radius); font-size: 16px; font-weight: 500; cursor: pointer; width: calc(100% - 32px); text-decoration: none; }
   .sheet-btn svg { width: 20px; height: 20px; }
-
   .setup-banner { background: #fff3cd; border-radius: var(--radius); margin: 0 16px 12px; padding: 14px 16px; font-size: 14px; color: #856404; line-height: 1.6; }
   .setup-banner b { font-weight: 600; }
   .setup-input { margin-top: 8px; width: 100%; border: 1px solid #ffc107; border-radius: 8px; padding: 8px 10px; font-size: 14px; background: #fff; color: #333; }
   .setup-save { margin-top: 8px; background: #ffc107; border: none; border-radius: 8px; padding: 8px 16px; font-size: 14px; font-weight: 600; cursor: pointer; }
-
   .spinner { display: inline-block; width: 18px; height: 18px; border: 2px solid rgba(255,255,255,0.4); border-top-color: #fff; border-radius: 50%; animation: spin 0.6s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
   .empty { padding: 20px 16px; color: var(--sub); font-size: 15px; text-align: center; }
@@ -85,7 +81,6 @@
 </head>
 <body>
 <div class="page">
-
   <div class="topbar">
     <div class="topbar-date" id="topbar-date"></div>
     <div class="topbar-day" id="topbar-day"></div>
@@ -94,34 +89,39 @@
   <div id="setup-section"></div>
 
   <div class="card">
-    <div class="field">
-      <label>What</label>
-      <input type="text" id="f-desc" placeholder="work done" autocomplete="off">
-    </div>
-    <div class="field">
-      <label>Start</label>
-      <input type="time" id="f-start" placeholder="09:00">
-    </div>
-    <div class="field">
-      <label>Finish</label>
-      <input type="time" id="f-end" placeholder="17:00">
-    </div>
+    <div class="field"><label>What</label><input type="text" id="f-desc" placeholder="work done" autocomplete="off"></div>
+    <div class="field"><label>Start</label><input type="time" id="f-start"></div>
+    <div class="field"><label>Finish</label><input type="time" id="f-end"></div>
   </div>
 
   <button class="save-btn" id="save-btn" onclick="saveEntry()">Save entry</button>
 
-  <div class="year-card">
-    <div>
-      <div class="year-label" id="year-label">Loading…</div>
-      <div>
-        <span class="year-value" id="year-value">—</span>
-        <span class="year-unit" id="year-unit"></span>
+  <div class="countdown-card">
+    <div class="countdown-top">
+      <div class="countdown-instalment" id="cd-instalment">Instalment 1</div>
+      <div class="countdown-badge badge-active" id="cd-badge">In progress</div>
+    </div>
+    <div class="countdown-numbers">
+      <div class="countdown-stat">
+        <div class="countdown-num" id="cd-done">-</div>
+        <div class="countdown-lbl">hrs done</div>
+      </div>
+      <div class="countdown-stat">
+        <div class="countdown-num" id="cd-left">-</div>
+        <div class="countdown-lbl">hrs remaining</div>
       </div>
     </div>
+    <div class="progress-track"><div class="progress-fill" id="cd-bar" style="width:0%"></div></div>
+    <div class="countdown-sub" id="cd-sub">Loading...</div>
+  </div>
+
+  <div class="year-card">
+    <div>
+      <div class="year-label" id="year-label">Loading...</div>
+      <div><span class="year-value" id="year-value">-</span><span class="year-unit" id="year-unit"></span></div>
+    </div>
     <div class="year-icon">
-      <svg viewBox="0 0 24 24">
-        <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
-      </svg>
+      <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
     </div>
   </div>
 
@@ -133,157 +133,172 @@
     </svg>
     Open Google Sheet
   </a>
-
 </div>
 
 <script>
-const SCRIPT_KEY = 'hours_script_url';
-const SHEET_KEY  = 'hours_sheet_url';
-let SCRIPT_URL   = localStorage.getItem(SCRIPT_KEY) || '';
-let SHEET_URL    = localStorage.getItem(SHEET_KEY)  || '';
+var SCRIPT_KEY = 'hours_script_url';
+var SHEET_KEY  = 'hours_sheet_url';
+var BLOCK      = 80;
+var SCRIPT_URL = localStorage.getItem(SCRIPT_KEY) || '';
+var SHEET_URL  = localStorage.getItem(SHEET_KEY)  || '';
+var today      = new Date();
+var isoDate    = today.toISOString().slice(0,10);
+var thisYear   = String(today.getFullYear());
 
-const today    = new Date();
-const isoDate  = today.toISOString().slice(0, 10);
-const thisYear = String(today.getFullYear());
-const pad      = n => String(n).padStart(2, '0');
+function pad(n){ return String(n).padStart(2,'0'); }
 
-const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-const days   = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+var months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+var days   = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 document.getElementById('topbar-date').textContent = today.getDate() + ' ' + months[today.getMonth()];
 document.getElementById('topbar-day').textContent  = days[today.getDay()] + ' ' + today.getFullYear();
 document.getElementById('f-start').value = pad(today.getHours()) + ':' + pad(today.getMinutes());
 document.getElementById('f-end').value   = pad(today.getHours()) + ':' + pad(today.getMinutes());
 
-function renderSetup() {
-  const el = document.getElementById('setup-section');
-  if (SCRIPT_URL) { el.innerHTML = ''; updateSheetBtn(); return; }
-  el.innerHTML =
-    '<div class="setup-banner">' +
-    '<b>One-time setup</b><br>' +
-    'Apps Script URL:<br>' +
-    '<input class="setup-input" id="url-script" type="url" placeholder="https://script.google.com/macros/s/...">' +
-    'Google Sheet URL (optional — for the button at the bottom):<br>' +
-    '<input class="setup-input" id="url-sheet" type="url" placeholder="https://docs.google.com/spreadsheets/d/...">' +
-    '<br><button class="setup-save" onclick="saveUrls()">Save</button>' +
-    '</div>';
+function renderSetup(){
+  var el = document.getElementById('setup-section');
+  if(SCRIPT_URL){ el.innerHTML=''; updateSheetBtn(); return; }
+  el.innerHTML='<div class="setup-banner"><b>One-time setup</b><br>Apps Script URL:<br>'+
+    '<input class="setup-input" id="url-script" type="url" placeholder="https://script.google.com/macros/s/...">'+
+    'Google Sheet URL (optional):<br>'+
+    '<input class="setup-input" id="url-sheet" type="url" placeholder="https://docs.google.com/spreadsheets/d/...">'+
+    '<br><button class="setup-save" onclick="saveUrls()">Save</button></div>';
 }
 
-function saveUrls() {
-  const s = document.getElementById('url-script').value.trim();
-  if (!s.startsWith('https://script.google.com')) { alert('Please paste a valid Apps Script URL'); return; }
-  SCRIPT_URL = s;
-  localStorage.setItem(SCRIPT_KEY, s);
-  const sh = document.getElementById('url-sheet').value.trim();
-  if (sh) { SHEET_URL = sh; localStorage.setItem(SHEET_KEY, sh); }
-  renderSetup();
-  loadData();
+function saveUrls(){
+  var s=document.getElementById('url-script').value.trim();
+  if(!s.startsWith('https://script.google.com')){ alert('Please paste a valid Apps Script URL'); return; }
+  SCRIPT_URL=s; localStorage.setItem(SCRIPT_KEY,s);
+  var sh=document.getElementById('url-sheet').value.trim();
+  if(sh){ SHEET_URL=sh; localStorage.setItem(SHEET_KEY,sh); }
+  renderSetup(); loadData();
 }
 
-function updateSheetBtn() {
-  const btn = document.getElementById('sheet-btn');
-  if (SHEET_URL) { btn.href = SHEET_URL; btn.style.display = 'flex'; }
-  else btn.style.display = 'none';
+function updateSheetBtn(){
+  var btn=document.getElementById('sheet-btn');
+  if(SHEET_URL){ btn.href=SHEET_URL; btn.style.display='flex'; }
+  else btn.style.display='none';
 }
 
-async function saveEntry() {
-  if (!SCRIPT_URL) { alert('Please add your Apps Script URL first'); return; }
-  const desc  = document.getElementById('f-desc').value.trim();
-  const start = document.getElementById('f-start').value;
-  const end   = document.getElementById('f-end').value;
-  if (!desc)  { document.getElementById('f-desc').focus(); return; }
-  if (!start || !end) { alert('Please set start and finish time'); return; }
-
-  const btn = document.getElementById('save-btn');
-  btn.innerHTML = '<span class="spinner"></span>';
-  btn.disabled = true;
-
-  try {
-    await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ date: isoDate, desc, start, end }) });
-    document.getElementById('f-desc').value = '';
-    const n = new Date();
-    document.getElementById('f-end').value = pad(n.getHours()) + ':' + pad(n.getMinutes());
-    setTimeout(loadData, 1200);
-  } catch(e) { alert('Error saving. Check your script URL.'); }
-
-  btn.innerHTML = 'Save entry';
-  btn.disabled = false;
+async function saveEntry(){
+  if(!SCRIPT_URL){ alert('Please add your Apps Script URL first'); return; }
+  var desc=document.getElementById('f-desc').value.trim();
+  var start=document.getElementById('f-start').value;
+  var end=document.getElementById('f-end').value;
+  if(!desc) desc = 'worked';
+  if(!start||!end){ alert('Please set start and finish time'); return; }
+  var btn=document.getElementById('save-btn');
+  btn.innerHTML='<span class="spinner"></span>'; btn.disabled=true;
+  try{
+    await fetch(SCRIPT_URL,{method:'POST',mode:'no-cors',body:JSON.stringify({date:isoDate,desc:desc,start:start,end:end})});
+    document.getElementById('f-desc').value='';
+    var n=new Date();
+    document.getElementById('f-end').value=pad(n.getHours())+':'+pad(n.getMinutes());
+    setTimeout(loadData,1200);
+  }catch(e){ alert('Error saving. Check your script URL.'); }
+  btn.innerHTML='Save entry'; btn.disabled=false;
 }
 
-async function loadData() {
-  if (!SCRIPT_URL) { document.getElementById('year-label').textContent = 'Set up script URL to track hours'; return; }
-  try {
-    const r = await fetch(SCRIPT_URL + '?date=' + isoDate + '&year=' + thisYear);
-    const data = await r.json();
-    renderYearTotal(data.yearTotal || 0);
-    renderToday(data.entries || []);
-  } catch(e) {
-    document.getElementById('year-label').textContent = 'Could not load';
+async function loadData(){
+  if(!SCRIPT_URL){
+    document.getElementById('year-label').textContent='Set up script URL to track hours';
+    document.getElementById('cd-sub').textContent='Set up script URL to track hours';
+    return;
+  }
+  try{
+    var r=await fetch(SCRIPT_URL+'?date='+isoDate+'&year='+thisYear);
+    var data=await r.json();
+    renderCountdown(data.allTimeTotal||0);
+    renderYearTotal(data.yearTotal||0);
+    renderToday(data.entries||[]);
+  }catch(e){
+    document.getElementById('year-label').textContent='Could not load';
+    document.getElementById('cd-sub').textContent='Could not load';
   }
 }
 
-function renderYearTotal(total) {
-  document.getElementById('year-label').textContent = thisYear + ' total';
-  document.getElementById('year-value').textContent = total.toFixed(1);
-  document.getElementById('year-unit').textContent  = 'hrs';
+function renderCountdown(allTime){
+  var instalmentNum = Math.floor(allTime/BLOCK)+1;
+  var done          = parseFloat((allTime%BLOCK).toFixed(2));
+  var remaining     = parseFloat((BLOCK-done).toFixed(2));
+  var pct           = Math.min(100,(done/BLOCK)*100);
+  var complete      = remaining<0.01;
+  document.getElementById('cd-instalment').textContent = 'Instalment '+instalmentNum;
+  document.getElementById('cd-done').textContent  = done.toFixed(1);
+  document.getElementById('cd-left').textContent  = complete ? '0.0' : remaining.toFixed(1);
+  var bar=document.getElementById('cd-bar');
+  bar.style.width=pct.toFixed(1)+'%';
+  bar.classList.toggle('complete',complete);
+  var badge=document.getElementById('cd-badge');
+  if(complete){
+    badge.textContent='Payment due';
+    badge.className='countdown-badge badge-due';
+    document.getElementById('cd-sub').textContent='80 hrs complete \u2014 \u00a31,000 instalment now due';
+  } else {
+    badge.textContent='In progress';
+    badge.className='countdown-badge badge-active';
+    document.getElementById('cd-sub').textContent=
+      remaining.toFixed(1)+' hrs until next \u00a31,000 \u00b7 '+allTime.toFixed(1)+' hrs all time';
+  }
 }
 
-function renderToday(entries) {
-  const el = document.getElementById('today-section');
-  if (!entries.length) { el.innerHTML = '<div class="empty">No entries today yet</div>'; return; }
-  const total = entries.reduce((s, e) => s + parseFloat(e.hours || 0), 0);
-  let html = '<div class="section-label">Today</div>' +
-    '<div class="today-pill">' + total.toFixed(2) + ' hrs today</div>' +
+function renderYearTotal(total){
+  document.getElementById('year-label').textContent=thisYear+' total';
+  document.getElementById('year-value').textContent=total.toFixed(1);
+  document.getElementById('year-unit').textContent='hrs';
+}
+
+function renderToday(entries){
+  var el=document.getElementById('today-section');
+  if(!entries.length){ el.innerHTML='<div class="empty">No entries today yet</div>'; return; }
+  var total=entries.reduce(function(s,e){ return s+parseFloat(e.hours||0); },0);
+  var html='<div class="section-label">Today</div>'+
+    '<div class="today-pill">'+total.toFixed(2)+' hrs today</div>'+
     '<div class="card">';
-  entries.forEach(function(e) {
-    html +=
-      '<div class="entry" id="entry-' + e.row + '">' +
-        '<div class="entry-row" onclick="toggleEdit(' + e.row + ')">' +
-          '<div class="entry-info">' +
-            '<div class="entry-desc">' + e.desc + '</div>' +
-            '<div class="entry-time">' + e.start + ' – ' + e.end + '</div>' +
-          '</div>' +
-          '<div class="entry-hrs">' + parseFloat(e.hours).toFixed(2) + 'h</div>' +
-          '<div class="entry-chevron">&#8250;</div>' +
-        '</div>' +
-        '<div class="edit-form" id="edit-' + e.row + '">' +
-          '<div class="edit-row"><label>Work done</label><input type="text" id="ed-desc-' + e.row + '" value="' + e.desc + '"></div>' +
-          '<div class="edit-row"><label>Start</label><input type="time" id="ed-start-' + e.row + '" value="' + e.start + '"></div>' +
-          '<div class="edit-row"><label>Finish</label><input type="time" id="ed-end-' + e.row + '" value="' + e.end + '"></div>' +
-          '<div class="edit-actions">' +
-            '<button class="btn-update" onclick="updateEntry(' + e.row + ')">Update</button>' +
-            '<button class="btn-cancel" onclick="toggleEdit(' + e.row + ')">Cancel</button>' +
-          '</div>' +
-        '</div>' +
+  entries.forEach(function(e){
+    html+=
+      '<div class="entry" id="entry-'+e.row+'">'+
+        '<div class="entry-row" onclick="toggleEdit('+e.row+')">'+
+          '<div class="entry-info">'+
+            '<div class="entry-desc">'+e.desc+'</div>'+
+            '<div class="entry-time">'+e.date+' &nbsp; '+e.start+' \u2013 '+e.end+'</div>'+
+          '</div>'+
+          '<div class="entry-hrs">'+parseFloat(e.hours).toFixed(2)+'h</div>'+
+          '<div class="entry-chevron">&#8250;</div>'+
+        '</div>'+
+        '<div class="edit-form" id="edit-'+e.row+'">'+
+          '<div class="edit-row"><label>Work done</label><input type="text" id="ed-desc-'+e.row+'" value="'+e.desc+'"></div>'+
+          '<div class="edit-row"><label>Start</label><input type="time" id="ed-start-'+e.row+'" value="'+e.start+'"></div>'+
+          '<div class="edit-row"><label>Finish</label><input type="time" id="ed-end-'+e.row+'" value="'+e.end+'"></div>'+
+          '<div class="edit-actions">'+
+            '<button class="btn-update" onclick="updateEntry('+e.row+')">Update</button>'+
+            '<button class="btn-cancel" onclick="toggleEdit('+e.row+')">Cancel</button>'+
+          '</div>'+
+        '</div>'+
       '</div>';
   });
-  html += '</div>';
-  el.innerHTML = html;
+  html+='</div>';
+  el.innerHTML=html;
 }
 
-function toggleEdit(row) {
-  const form = document.getElementById('edit-' + row);
-  const isOpen = form.classList.contains('open');
-  document.querySelectorAll('.edit-form').forEach(f => f.classList.remove('open'));
-  if (!isOpen) form.classList.add('open');
+function toggleEdit(row){
+  var form=document.getElementById('edit-'+row);
+  var isOpen=form.classList.contains('open');
+  document.querySelectorAll('.edit-form').forEach(function(f){ f.classList.remove('open'); });
+  if(!isOpen) form.classList.add('open');
 }
 
-async function updateEntry(row) {
-  const desc  = document.getElementById('ed-desc-' + row).value.trim();
-  const start = document.getElementById('ed-start-' + row).value;
-  const end   = document.getElementById('ed-end-' + row).value;
-  if (!desc || !start || !end) { alert('Please fill in all fields'); return; }
-
-  const btn = document.querySelector('#edit-' + row + ' .btn-update');
-  btn.innerHTML = '<span class="spinner"></span>';
-  btn.disabled = true;
-
-  try {
-    await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'update', row, desc, start, end }) });
-    setTimeout(loadData, 1200);
-  } catch(e) { alert('Error updating entry.'); }
-
-  btn.innerHTML = 'Update';
-  btn.disabled = false;
+async function updateEntry(row){
+  var desc=document.getElementById('ed-desc-'+row).value.trim();
+  var start=document.getElementById('ed-start-'+row).value;
+  var end=document.getElementById('ed-end-'+row).value;
+  if(!desc||!start||!end){ alert('Please fill in all fields'); return; }
+  var btn=document.querySelector('#edit-'+row+' .btn-update');
+  btn.innerHTML='<span class="spinner"></span>'; btn.disabled=true;
+  try{
+    await fetch(SCRIPT_URL,{method:'POST',mode:'no-cors',body:JSON.stringify({action:'update',row:row,desc:desc,start:start,end:end})});
+    setTimeout(loadData,1200);
+  }catch(e){ alert('Error updating entry.'); }
+  btn.innerHTML='Update'; btn.disabled=false;
 }
 
 renderSetup();
