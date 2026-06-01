@@ -247,6 +247,11 @@ function renderYearTotal(total){
   document.getElementById('year-unit').textContent='hrs';
 }
 
+function fmtDate(d){
+  var p=d.split('-'); var months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return parseInt(p[2])+' '+months[parseInt(p[1])-1];
+}
+
 function renderToday(entries){
   var el=document.getElementById('today-section');
   if(!entries.length){ el.innerHTML='<div class="empty">No entries today yet</div>'; return; }
@@ -260,7 +265,7 @@ function renderToday(entries){
         '<div class="entry-row" onclick="toggleEdit('+e.row+')">'+
           '<div class="entry-info">'+
             '<div class="entry-desc">'+e.desc+'</div>'+
-            '<div class="entry-time">'+e.date+' &nbsp; '+e.start+' \u2013 '+e.end+'</div>'+
+            '<div class="entry-time">'+fmtDate(e.date)+'&nbsp;&nbsp;'+e.start+' \u2013 '+e.end+'</div>'+
           '</div>'+
           '<div class="entry-hrs">'+parseFloat(e.hours).toFixed(2)+'h</div>'+
           '<div class="entry-chevron">&#8250;</div>'+
