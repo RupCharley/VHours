@@ -119,10 +119,18 @@
       <div class="year-label" id="year-label">Loading...</div>
       <div><span class="year-value" id="year-value">-</span><span class="year-unit" id="year-unit"></span></div>
     </div>
-    <div class="year-icon">
-      <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+    <div onclick="toggleYearExpand()" style="cursor:pointer;flex:1">
+      <div class="year-label" id="year-label">Loading...</div>
+      <div><span class="year-value" id="year-value">-</span><span class="year-unit" id="year-unit"></span></div>
+    </div>
+    <div onclick="toggleYearExpand()" style="cursor:pointer;display:flex;align-items:center;gap:8px">
+      <div class="year-icon">
+        <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      </div>
+      <span id="year-chevron" style="color:var(--sub);font-size:20px;transition:transform 0.2s">&#8250;</span>
     </div>
   </div>
+  <div id="year-entries" style="display:none;border-top:0.5px solid var(--border);margin-top:4px"></div>
 
   <div id="today-section"></div>
 
@@ -143,6 +151,7 @@ var SHEET_URL  = localStorage.getItem(SHEET_KEY)  || '';
 var today      = new Date();
 var isoDate    = today.toISOString().slice(0,10);
 var thisYear   = String(today.getFullYear());
+var yearEntriesData = [];
 
 function pad(n){ return String(n).padStart(2,'0'); }
 
@@ -205,6 +214,8 @@ async function loadData(){
     var data=await r.json();
     renderCountdown(data.allTimeTotal||0);
     renderYearTotal(data.yearTotal||0);
+    yearEntriesData = data.yearEntries||[];
+    renderYearEntries();
     renderToday(data.entries||[]);
   }catch(e){
     document.getElementById('year-label').textContent='Could not load';
@@ -235,6 +246,64 @@ function renderCountdown(allTime){
     document.getElementById('cd-sub').textContent=
       remaining.toFixed(1)+' hrs until next \u00a31,000 \u00b7 '+allTime.toFixed(1)+' hrs all time';
   }
+}
+
+function toggleYearExpand(){
+  var el=document.getElementById('year-entries');
+  var chev=document.getElementById('year-chevron');
+  var open=el.style.display!=='none';
+  el.style.display=open?'none':'block';
+  chev.style.transform=open?'':'rotate(90deg)';
+}
+
+function renderYearEntries(){
+  var el=document.getElementById('year-entries');
+  if(!yearEntriesData.length){ el.innerHTML='<div class="empty" style="padding:14px 16px">No entries yet</div>'; return; }
+  var sorted=[].concat(yearEntriesData).reverse();
+  var html='';
+  sorted.forEach(function(e){
+    html+=
+      '<div class="entry" id="yentry-'+e.row+'">'+
+        '<div class="entry-row" onclick="toggleYearEdit('+e.row+')" style="padding:10px 16px">'+
+          '<div class="entry-info">'+
+            '<div class="entry-desc" style="font-size:14px">'+fmtDate(e.date)+'</div>'+
+            '<div class="entry-time" style="font-size:12px">'+e.desc+'</div>'+
+          '</div>'+
+          '<div class="entry-hrs" style="font-size:15px">'+parseFloat(e.hours).toFixed(0)+'h</div>'+
+          '<div class="entry-chevron">&#8250;</div>'+
+        '</div>'+
+        '<div class="edit-form" id="yedit-'+e.row+'">'+
+          '<div class="edit-row"><label>Work done</label><input type="text" id="yed-desc-'+e.row+'" value="'+e.desc+'"></div>'+
+          '<div class="edit-row"><label>Hours</label><input type="number" id="yed-hours-'+e.row+'" value="'+Math.round(parseFloat(e.hours))+'" min="0" max="24" step="1" inputmode="numeric" style="text-align:right"></div>'+
+          '<div class="edit-actions">'+
+            '<button class="btn-update" onclick="updateYearEntry('+e.row+')">Update</button>'+
+            '<button class="btn-cancel" onclick="toggleYearEdit('+e.row+')">Cancel</button>'+
+          '</div>'+
+        '</div>'+
+      '</div>';
+  });
+  el.innerHTML=html;
+}
+
+function toggleYearEdit(row){
+  var form=document.getElementById('yedit-'+row);
+  var isOpen=form.classList.contains('open');
+  document.querySelectorAll('#year-entries .edit-form').forEach(function(f){ f.classList.remove('open'); });
+  if(!isOpen) form.classList.add('open');
+}
+
+async function updateYearEntry(row){
+  var desc=document.getElementById('yed-desc-'+row).value.trim();
+  var hrs=parseInt(document.getElementById('yed-hours-'+row).value);
+  if(!desc) desc='worked';
+  if(isNaN(hrs)||hrs<0){ alert('Please enter hours'); return; }
+  var btn=document.querySelector('#yedit-'+row+' .btn-update');
+  btn.innerHTML='<span class="spinner"></span>'; btn.disabled=true;
+  try{
+    await fetch(SCRIPT_URL,{method:'POST',mode:'no-cors',body:JSON.stringify({action:'update',row:row,desc:desc,hours:hrs})});
+    setTimeout(loadData,1200);
+  }catch(e){ alert('Error updating entry.'); }
+  btn.innerHTML='Update'; btn.disabled=false;
 }
 
 function renderYearTotal(total){
