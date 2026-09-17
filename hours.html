@@ -269,7 +269,7 @@ function renderYearEntries(){
             '<div class="entry-desc" style="font-size:14px">'+fmtDate(e.date)+'</div>'+
             '<div class="entry-time" style="font-size:12px">'+e.desc+'</div>'+
           '</div>'+
-          '<div class="entry-hrs" style="font-size:15px">'+parseFloat(e.hours).toFixed(0)+'h</div>'+
+          '<div class="entry-hrs" style="font-size:15px">'+parseFloat(e.hours).toFixed(1)+'h</div>'+
           '<div class="entry-chevron">&#8250;</div>'+
         '</div>'+
         '<div class="edit-form" id="yedit-'+e.row+'">'+
@@ -336,7 +336,7 @@ function renderToday(entries){
         '</div>'+
         '<div class="edit-form" id="edit-'+e.row+'">'+
           '<div class="edit-row" style="color:var(--sub);font-size:13px;padding:6px 0 10px;border-bottom:0.5px solid var(--border)">'+
-            e.desc+'&nbsp;&nbsp;'+Math.round(parseFloat(e.hours))+' hrs'+
+            e.desc+'&nbsp;&nbsp;'+parseFloat(e.hours).toFixed(1)+' hrs'+
           '</div>'+
           '<div class="edit-row"><label>Work done</label><input type="text" id="ed-desc-'+e.row+'" value="'+e.desc+'"></div>'+
           '<div class="edit-row"><label>Hours</label><input type="number" id="ed-hours-'+e.row+'" value="'+parseFloat(e.hours)+'" min="0" max="24" step="0.5" inputmode="decimal" style="text-align:right"></div>'+
