@@ -90,7 +90,7 @@
 
   <div class="card">
     <div class="field"><label>What</label><input type="text" id="f-desc" placeholder="work done" autocomplete="off"></div>
-    <div class="field"><label>Hours</label><input type="number" id="f-hours" placeholder="0" min="0" max="24" step="1" inputmode="numeric"></div>
+    <div class="field"><label>Hours</label><input type="number" id="f-hours" placeholder="0" min="0" max="24" step="0.5" inputmode="decimal"></div>
   </div>
 
   <button class="save-btn" id="save-btn" onclick="saveEntry()">Save entry</button>
@@ -189,7 +189,7 @@ function updateSheetBtn(){
 async function saveEntry(){
   if(!SCRIPT_URL){ alert('Please add your Apps Script URL first'); return; }
   var desc=document.getElementById('f-desc').value.trim();
-  var hrs=parseInt(document.getElementById('f-hours').value);
+  var hrs=parseFloat(document.getElementById('f-hours').value);
   if(!desc) desc='worked';
   if(isNaN(hrs)||hrs<0){ alert('Please enter hours worked'); return; }
   var btn=document.getElementById('save-btn');
@@ -274,7 +274,7 @@ function renderYearEntries(){
         '</div>'+
         '<div class="edit-form" id="yedit-'+e.row+'">'+
           '<div class="edit-row"><label>Work done</label><input type="text" id="yed-desc-'+e.row+'" value="'+e.desc+'"></div>'+
-          '<div class="edit-row"><label>Hours</label><input type="number" id="yed-hours-'+e.row+'" value="'+Math.round(parseFloat(e.hours))+'" min="0" max="24" step="1" inputmode="numeric" style="text-align:right"></div>'+
+          '<div class="edit-row"><label>Hours</label><input type="number" id="yed-hours-'+e.row+'" value="'+parseFloat(e.hours)+'" min="0" max="24" step="0.5" inputmode="decimal" style="text-align:right"></div>'+
           '<div class="edit-actions">'+
             '<button class="btn-update" onclick="updateYearEntry('+e.row+')">Update</button>'+
             '<button class="btn-cancel" onclick="toggleYearEdit('+e.row+')">Cancel</button>'+
@@ -294,7 +294,7 @@ function toggleYearEdit(row){
 
 async function updateYearEntry(row){
   var desc=document.getElementById('yed-desc-'+row).value.trim();
-  var hrs=parseInt(document.getElementById('yed-hours-'+row).value);
+  var hrs=parseFloat(document.getElementById('yed-hours-'+row).value);
   if(!desc) desc='worked';
   if(isNaN(hrs)||hrs<0){ alert('Please enter hours'); return; }
   var btn=document.querySelector('#yedit-'+row+' .btn-update');
@@ -339,7 +339,7 @@ function renderToday(entries){
             e.desc+'&nbsp;&nbsp;'+Math.round(parseFloat(e.hours))+' hrs'+
           '</div>'+
           '<div class="edit-row"><label>Work done</label><input type="text" id="ed-desc-'+e.row+'" value="'+e.desc+'"></div>'+
-          '<div class="edit-row"><label>Hours</label><input type="number" id="ed-hours-'+e.row+'" value="'+Math.round(parseFloat(e.hours))+'" min="0" max="24" step="1" inputmode="numeric" style="text-align:right"></div>'+
+          '<div class="edit-row"><label>Hours</label><input type="number" id="ed-hours-'+e.row+'" value="'+parseFloat(e.hours)+'" min="0" max="24" step="0.5" inputmode="decimal" style="text-align:right"></div>'+
           '<div class="edit-actions">'+
             '<button class="btn-update" onclick="updateEntry('+e.row+')">Update</button>'+
             '<button class="btn-cancel" onclick="toggleEdit('+e.row+')">Cancel</button>'+
@@ -360,7 +360,7 @@ function toggleEdit(row){
 
 async function updateEntry(row){
   var desc=document.getElementById('ed-desc-'+row).value.trim();
-  var hrs=parseInt(document.getElementById('ed-hours-'+row).value);
+  var hrs=parseFloat(document.getElementById('ed-hours-'+row).value);
   if(!desc) desc='worked';
   if(isNaN(hrs)||hrs<0){ alert('Please enter hours'); return; }
   var btn=document.querySelector('#edit-'+row+' .btn-update');
